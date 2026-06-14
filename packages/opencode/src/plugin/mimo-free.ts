@@ -144,7 +144,6 @@ export async function MimoFreeAuthPlugin(_input: PluginInput): Promise<Hooks> {
           },
         },
       }
-
     },
   }
 }
