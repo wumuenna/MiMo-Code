@@ -3,7 +3,7 @@ import { createEffect, createMemo, onMount, createSignal, onCleanup, on, Show, S
 import "opentui-spinner/solid"
 import path from "path"
 import { fileURLToPath } from "url"
-import { Filesystem } from "@/util"
+import { Filesystem, Log } from "@/util"
 import { useLocal } from "@tui/context/local"
 import { tint, useTheme } from "@tui/context/theme"
 import { EmptyBorder, SplitBorder } from "@tui/component/border"
@@ -44,6 +44,9 @@ import { DialogSkill } from "../dialog-skill"
 import { DialogWorkspaceCreate, restoreWorkspaceSession } from "../dialog-workspace-create"
 import { DialogWorkspaceUnavailable } from "../dialog-workspace-unavailable"
 import { useArgs } from "@tui/context/args"
+import { formatRetryStatusMessage } from "./status-message"
+
+const log = Log.create({ service: "tui.prompt" })
 
 export type PromptProps = {
   sessionID?: string
@@ -1017,7 +1020,7 @@ export function Prompt(props: PromptProps) {
       const res = await sdk.client.session.create({ workspace: props.workspaceID })
 
       if (res.error) {
-        console.log("Creating a session failed:", res.error)
+        log.error("creating a session failed", { error: res.error })
 
         toast.show({
           message: "Creating a session failed. Open console for more details.",
@@ -1731,15 +1734,12 @@ export function Prompt(props: PromptProps) {
                     const message = createMemo(() => {
                       const r = retry()
                       if (!r) return
-                      if (r.message.includes("exceeded your current quota") && r.message.includes("gemini"))
-                        return "gemini is way too hot right now"
-                      if (r.message.length > 80) return r.message.slice(0, 80) + "..."
-                      return r.message
+                      return formatRetryStatusMessage(r.message).message
                     })
-                    const isTruncated = createMemo(() => {
+                    const isExpandable = createMemo(() => {
                       const r = retry()
                       if (!r) return false
-                      return r.message.length > 120
+                      return formatRetryStatusMessage(r.message).truncated
                     })
                     const [seconds, setSeconds] = createSignal(0)
                     onMount(() => {
@@ -1755,7 +1755,7 @@ export function Prompt(props: PromptProps) {
                     const handleMessageClick = () => {
                       const r = retry()
                       if (!r) return
-                      if (isTruncated()) {
+                      if (isExpandable()) {
                         void DialogAlert.show(dialog, "Retry Error", r.message)
                       }
                     }
@@ -1764,7 +1764,7 @@ export function Prompt(props: PromptProps) {
                       const r = retry()
                       if (!r) return ""
                       const baseMessage = message()
-                      const truncatedHint = isTruncated() ? " (click to expand)" : ""
+                      const truncatedHint = isExpandable() ? " (click to expand)" : ""
                       const duration = formatDuration(seconds())
                       const retryInfo = ` [retrying ${duration ? `in ${duration} ` : ""}attempt #${r.attempt}]`
                       return baseMessage + truncatedHint + retryInfo
