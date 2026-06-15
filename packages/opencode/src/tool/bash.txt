@@ -1,6 +1,7 @@
 Executes a given shell command in a persistent shell session with optional timeout, ensuring proper handling and security measures.
 
 Be aware: OS: ${os}, Shell: ${shell}
+${envNote}
 
 All commands run in the current working directory by default. Use the `workdir` parameter if you need to run a command in a different directory. AVOID using `cd <directory> && <command>` patterns - use `workdir` instead.
 
@@ -14,11 +15,12 @@ Before executing the command, please follow these steps:
 
 2. Command Execution:
    - Always quote file paths that contain spaces with double quotes (e.g., rm "path with spaces/file.txt")
-   - Examples of proper quoting:
-     - mkdir "/Users/name/My Documents" (correct)
-     - mkdir /Users/name/My Documents (incorrect - will fail)
-     - python "/path/with spaces/script.py" (correct)
-     - python /path/with spaces/script.py (incorrect - will fail)
+    - Examples of proper quoting:
+      - mkdir "/Users/name/My Documents" (correct)
+      - mkdir /Users/name/My Documents (incorrect - will fail)
+      - On Windows: mkdir "C:\Users\name\My Documents" (correct)
+      - python "/path/with spaces/script.py" (correct)
+      - python /path/with spaces/script.py (incorrect - will fail)
    - After ensuring proper quoting, execute the command.
    - Capture the output of the command.
 
