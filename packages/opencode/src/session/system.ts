@@ -57,11 +57,6 @@ export const layer = Layer.effect(
             `  Workspace root folder: ${Instance.worktree}`,
             `  Is directory a git repo: ${project.vcs === "git" ? "yes" : "no"}`,
             `  Platform: ${process.platform}`,
-            ...(process.platform === "win32"
-              ? [
-                  `  Shell: PowerShell (prefer PowerShell-native commands; avoid Unix-only operators like && — use ; for chaining; use \$env:VAR for environment variables)`,
-                ]
-              : []),
             `  Today's date: ${new Date().toDateString()}`,
             `</env>`,
           ].join("\n"),

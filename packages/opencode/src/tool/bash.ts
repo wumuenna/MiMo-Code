@@ -620,9 +620,6 @@ export const BashTool = Tool.define(
           name === "powershell"
             ? "If the commands depend on each other and must run sequentially, avoid '&&' in this shell because Windows PowerShell 5.1 does not support it. Use PowerShell conditionals such as `cmd1; if ($?) { cmd2 }` when later commands must depend on earlier success."
             : "If the commands depend on each other and must run sequentially, use a single Bash call with '&&' to chain them together (e.g., `git add . && git commit -m \"message\" && git push`). For instance, if one operation must complete before another starts (like mkdir before cp, Write before Bash for git operations, or git add before git commit), run these operations sequentially instead."
-        const envNote = name === "powershell"
-          ? "Note: Use `$env:VAR` syntax for environment variables, not `$VAR`.\n"
-          : ""
         log.info("bash tool using shell", { shell })
 
         return {
@@ -630,7 +627,6 @@ export const BashTool = Tool.define(
             .replaceAll("${os}", process.platform)
             .replaceAll("${shell}", name)
             .replaceAll("${chaining}", chain)
-            .replaceAll("${envNote}", envNote)
             .replaceAll("${maxLines}", String(Truncate.MAX_LINES))
             .replaceAll("${maxBytes}", String(Truncate.MAX_BYTES)),
           parameters: Parameters,
