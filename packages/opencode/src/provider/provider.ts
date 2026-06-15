@@ -175,7 +175,7 @@ function custom(dep: CustomDep): Record<string, CustomLoader> {
         Boolean((yield* dep.config()).provider?.["opencode"]?.options?.apiKey)
 
       if (!ok) {
-        const hasMimo = Boolean((yield* dep.config()).provider?.["mimo"])
+        const hasMimo = Boolean((yield* dep.config()).provider?.["xiaomi"])
         if (hasMimo) {
           input.models = {}
         } else {

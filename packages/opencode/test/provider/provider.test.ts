@@ -2612,7 +2612,7 @@ test("plugin config enabled and disabled providers are honored", async () => {
   })
 })
 
-test("MimoFreeAuthPlugin hides opencode-zen provider by default", async () => {
+test("MimoAuthPlugin hides opencode-zen provider by default", async () => {
   await using base = await tmpdir({
     init: async (dir) => {
       await Bun.write(
@@ -2629,13 +2629,8 @@ test("MimoFreeAuthPlugin hides opencode-zen provider by default", async () => {
     fn: async () => list(),
   })
 
-  // MimoFreeAuthPlugin hides the default opencode-zen provider.
+  // MimoAuthPlugin hides the default opencode-zen provider.
   // Users can still make it appear by adding an apiKey or auth.
   expect(opencodeProviderPresent(providers)).toBe(false)
   expect(providers[ProviderID.make("opencode-go")]).toBeUndefined()
-  // The replacement free provider should be present.
-  expect(providers[ProviderID.make("mimo")]).toBeDefined()
-  expect(providers[ProviderID.make("mimo")].models[ModelID.make("mimo-auto")]).toBeDefined()
-  expect(providers[ProviderID.make("mimo")].models[ModelID.make("mimo-auto")].limit.context).toBe(1_000_000)
-  expect(providers[ProviderID.make("mimo")].models[ModelID.make("mimo-auto")].limit.output).toBe(128_000)
 })
