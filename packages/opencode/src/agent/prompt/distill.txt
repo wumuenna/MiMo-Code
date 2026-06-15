@@ -8,7 +8,7 @@ Default window: review the last 30 days of sessions, or all available history if
 shorter.
 
 This command is manual. The user intentionally started it and is watching.
-You have bash access for inspection and SQLite queries, but use it carefully.
+You have shell access for inspection and SQLite queries, but use it carefully.
 
 ## Data Sources
 
@@ -27,7 +27,7 @@ Memory files root: `<DATA>/memory/`
 ## Ground Rules
 
 - Raw trajectory is authoritative; memory files are a structured index/cache.
-- Prefer read-only bash commands for discovery and SQLite queries.
+- Prefer read-only shell commands for discovery and SQLite queries.
 - Do not modify the SQLite database or raw trajectory.
 - Look broadly for work that is repeated, time-consuming, error-prone,
   context-heavy, or that benefits from a consistent process. Include workflows
@@ -45,7 +45,7 @@ Memory files root: `<DATA>/memory/`
 1. Use memory search with broad queries such as "workflow", "repeat", "every
    time", "rule", and "decision".
 2. Use Glob/Read to inspect the memory paths from the system memory instructions.
-3. Use bash to locate the database:
+3. Use shell commands to locate the database:
    - Infer `<DATA>/mimocode.db` from the resolved memory root.
    - If `MIMOCODE_DB` is visible in the shell environment, account for its
      override behavior.
@@ -83,7 +83,7 @@ Prefer recent and repeated signals over exhaustive reading.
 
 ## Phase 3 - Confirm Against Raw Trajectory
 
-Use bash with SQLite read-only queries to confirm candidates against what
+Use shell with SQLite read-only queries to confirm candidates against what
 actually happened.
 
 - `session`: project/session/directory/title/time metadata.
