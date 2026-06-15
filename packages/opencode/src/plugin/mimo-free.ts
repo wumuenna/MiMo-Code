@@ -86,19 +86,6 @@ async function getJwt(): Promise<string> {
   }
 }
 
-export const MimoFree = {
-  baseUrl: BASE_URL,
-  bootstrapUrl: BOOTSTRAP_URL,
-  chatBaseUrl: CHAT_BASE_URL,
-  fingerprint: () => getClientFingerprint(),
-  async verify() {
-    cached = null
-    const result = await bootstrap()
-    cached = result
-    return { jwt: result.jwt, exp: result.exp, fingerprint: getClientFingerprint() }
-  },
-}
-
 function buildHeaders(init: any, jwt: string): Headers {
   const headers = new Headers(init?.headers)
   headers.set("Authorization", `Bearer ${jwt}`)
