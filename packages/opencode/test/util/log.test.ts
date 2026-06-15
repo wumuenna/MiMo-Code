@@ -43,25 +43,27 @@ test("init cleanup keeps the newest timestamped logs", async () => {
   expect(next).toContain(list.at(-1)!)
 })
 
-test("rotates to a new file once the size cap is reached", async () => {
+test("init cleanup prunes rotated dev.log archives", async () => {
   await using tmp = await tmpdir()
   Global.Path.log = tmp.path
 
-  await Log.init({ print: false, dev: false, level: "INFO" })
-  const first = Log.file()
+  // dev.log rotations and size-rotation archives must also be pruned, not just
+  // bare <iso>.log session logs.
+  const list = Array.from({ length: 12 }, (_, i) => `dev.log.2000-01-${String(i + 1).padStart(2, "0")}T000000`)
+  await Promise.all(list.map((file) => fs.writeFile(path.join(tmp.path, file), file)))
 
-  const logger = Log.create({ service: "rotation-test" })
-  const blob = "x".repeat(1024 * 1024)
-  for (let i = 0; i < 21; i++) {
-    logger.info("fill", { blob })
-  }
+  await Log.init({ print: false, dev: false })
 
-  for (let i = 0; i < 100 && Log.file() === first; i++) {
+  for (let i = 0; i < 50; i++) {
+    const current = await fs.readdir(tmp.path)
+    const archives = current.filter((f) => f.startsWith("dev.log."))
+    if (archives.length <= 10) break
     await Bun.sleep(10)
   }
 
-  expect(Log.file()).not.toBe(first)
-  expect(path.dirname(Log.file())).toBe(tmp.path)
-  // 20MB cap plus one in-flight message of slack
-  expect((await fs.stat(first)).size).toBeLessThan(22 * 1024 * 1024)
+  const final = await fs.readdir(tmp.path)
+  const archives = final.filter((f) => f.startsWith("dev.log.")).sort()
+  expect(archives.length).toBeLessThanOrEqual(10)
+  expect(archives).not.toContain(list[0]!)
+  expect(archives).toContain(list.at(-1)!)
 })
