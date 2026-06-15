@@ -106,18 +106,9 @@ function wrap<Parameters extends z.ZodType, Result extends Metadata>(
           "message.id": ctx.messageID,
           ...(ctx.callID ? { "tool.call_id": ctx.callID } : {}),
         }
-        // Some models (e.g. mimo-v2.5-pro) stringify nested object fields in
-        // tool call arguments even in JSON mode (e.g. {"operation":"{\"action\":\"run\",...}"}).
-        // If the tool defines a shell.recover function, try it before Zod
-        // validation so stringified fields are parsed back to objects.
-        let effectiveArgs = args
-        if (toolInfo.shell?.recover) {
-          const recovered = toolInfo.shell.recover(args as unknown)
-          if (recovered !== undefined) effectiveArgs = recovered as typeof args
-        }
         return Effect.gen(function* () {
           yield* Effect.try({
-            try: () => toolInfo.parameters.parse(effectiveArgs),
+            try: () => toolInfo.parameters.parse(args),
             catch: (error) => {
               // Bad arguments are always agent-recoverable: the model sees the
               // message and rewrites the call next turn. Mark it so the TUI
@@ -128,7 +119,7 @@ function wrap<Parameters extends z.ZodType, Result extends Metadata>(
               return new RecoverableError(validationErrorMessage(id, error), { cause: error })
             },
           })
-          const result = yield* execute(effectiveArgs, ctx)
+          const result = yield* execute(args, ctx)
           if (result.metadata.truncated !== undefined) {
             return result
           }
